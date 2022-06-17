@@ -30,7 +30,7 @@ async def get_transcript(filepath, dg_client):
             print("Done " + str(transcript_path))
 
 
-async def main():
+async def transcribe_audio():
     # Initializes the Deepgram SDK
     dg_client = Deepgram(DEEPGRAM_API_KEY)
 
@@ -56,13 +56,12 @@ def get_title_and_date(file_name):
     )
     return title, date
 
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
+def generate_markdown():
+    episode_list = []
     for file_path in Path(RAW_TRANSCRIPT_DIR).glob("**/*"):
         with open(file_path) as f:
             title, date = get_title_and_date(file_path.stem)
+            episode_list.append((title, date, file_path))
             print("Generating", title, date)
             header = f"""---
 layout: post
@@ -86,3 +85,12 @@ The original audio files are available at https://pytorch-dev-podcast.simplecast
                     "transcript"
                 ].split("."):
                     f.write(line.strip() + ".\n")
+    with open("episodes.md", "w") as f:
+        f.write("\n## Episodes\n\n")
+        for title, date, file_path in episode_list:
+            f.write(f"* {'-'.join(date)} [{title}]({file_path})\n")
+
+if __name__ == "__main__":
+    asyncio.run(transcribe_audio())
+    generate_markdown()
+
