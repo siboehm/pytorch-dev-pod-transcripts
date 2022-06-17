@@ -22,7 +22,14 @@ async def get_transcript(filepath, dg_client):
             print("Processing " + str(transcript_path))
 
             source = {"buffer": audio, "mimetype": MIMETYPE}
-            options = {"punctuate": True, "language": "en", "model": "general-enhanced"}
+            options = {
+                "punctuate": True,
+                "language": "en",
+                "model": "general-enhanced",
+                "diarize": True,
+                "ner": True,
+                "numerals": True,
+            }
 
             response = await dg_client.transcription.prerecorded(source, options)
             with open(transcript_path, "w") as f:
@@ -92,7 +99,9 @@ def generate_markdown():
                     f.write(line.strip() + ".\n")
     with open("episodes.md", "w") as f:
         f.write("\n## Episodes\n\n")
-        for title, date, file_path in episode_list:
+        for title, date, file_path in sorted(
+            episode_list, key=lambda x: x[1], reverse=True
+        ):
             f.write(f"* {'-'.join(date)} [{title}]({file_path})\n")
 
 
