@@ -218,4 +218,4 @@ Alright.
 That's everything I wanted to talk about today.
 Talk to you next time.
 
-[^lrozzilation] See for example [this blogpost](https://www.jeremyjordan.me/nn-learning-rate/) for the kind of picture Edward is talking about here.
+[^lrozzilation]: See for example [this blogpost](https://www.jeremyjordan.me/nn-learning-rate/) for the kind of picture Edward is talking about here.
