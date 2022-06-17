@@ -56,14 +56,8 @@ def get_title_and_date(file_name):
     )
     return title, date
 
-def generate_markdown():
-    episode_list = []
-    for file_path in Path(RAW_TRANSCRIPT_DIR).glob("**/*"):
-        with open(file_path) as f:
-            title, date = get_title_and_date(file_path.stem)
-            episode_list.append((title, date, file_path))
-            print("Generating", title, date)
-            header = f"""---
+
+HEADER = """---
 layout: post
 title: "{title}"
 date: {date[0]}-{date[1]}-{date[2]}
@@ -73,14 +67,25 @@ The original audio files are available at https://pytorch-dev-podcast.simplecast
 # {title}
 
 """
+
+
+def generate_markdown():
+    episode_list = []
+    for file_path in Path(RAW_TRANSCRIPT_DIR).glob("**/*"):
+        with open(file_path) as f:
+            title, date = get_title_and_date(file_path.stem)
+            transcript_path = Path("episodes") / (
+                "-".join(date) + "-" + title.replace(" ", "-") + ".md"
+            )
+            episode_list.append((title, date, transcript_path))
+            print("Generating", title, date)
             data = json.load(f)
             # save as markdown
             with open(
-                Path("episodes")
-                / ("-".join(date) + "-" + title.replace(" ", "-") + ".md"),
+                transcript_path,
                 "w",
             ) as f:
-                f.write(header)
+                f.write(HEADER.format(title=title, date=date))
                 for line in data["results"]["channels"][0]["alternatives"][0][
                     "transcript"
                 ].split("."):
@@ -90,7 +95,7 @@ The original audio files are available at https://pytorch-dev-podcast.simplecast
         for title, date, file_path in episode_list:
             f.write(f"* {'-'.join(date)} [{title}]({file_path})\n")
 
+
 if __name__ == "__main__":
     asyncio.run(transcribe_audio())
     generate_markdown()
-
